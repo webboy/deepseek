@@ -2,11 +2,11 @@
 
 namespace Webboy\Deepseek\Http;
 
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Webboy\Deepseek\Contracts\HttpClient;
+use GuzzleHttp\Psr7\Request;
 use Webboy\Deepseek\Exceptions\HttpClientException;
+use Webboy\Deepseek\Http\Contracts\HttpClient;
 
 class GuzzleHttp implements HttpClient
 {
@@ -16,6 +16,7 @@ class GuzzleHttp implements HttpClient
     {
         $this->client = new Client([
             'base_uri' => $baseUri ?? 'https://api.deepseek.com',
+            'verify' => false,
             'headers' => [
                 'Authorization' => 'Bearer ' . $apiKey,
                 'Content-Type' => 'application/json',
@@ -27,16 +28,17 @@ class GuzzleHttp implements HttpClient
      * Make a request to the Deepseek API.
      * @param string $method
      * @param string $endpoint
+     * @param array $headers
      * @param array $data
      * @return array
      * @throws HttpClientException
      */
-    public function request(string $method, string $endpoint, array $data = []): array
+    public function request(string $method, string $endpoint, array $headers = [], array $data = []): array
     {
         try {
-            $response = $this->client->request($method, $endpoint, [
-                'json' => $data
-            ]);
+            $request = new Request($method, $endpoint, $headers, json_encode($data));
+
+            $response = $this->client->sendAsync($request)->wait();
 
             return json_decode($response->getBody(), true);
         } catch (GuzzleException $e) {

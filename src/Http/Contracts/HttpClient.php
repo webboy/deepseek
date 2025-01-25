@@ -1,6 +1,6 @@
 <?php
 
-namespace Webboy\Deepseek\Contracts;
+namespace Webboy\Deepseek\Http\Contracts;
 
 /**
  * Interface HttpClient

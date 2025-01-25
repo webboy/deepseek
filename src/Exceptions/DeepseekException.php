@@ -1,6 +1,6 @@
 <?php
 
-namespace Webboy\Deepseek\Abstractions;
+namespace Webboy\Deepseek\Exceptions;
 
 use Exception;
 

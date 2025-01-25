@@ -2,14 +2,12 @@
 
 namespace Webboy\Deepseek\Models;
 
-use Webboy\Deepseek\Abstractions\BaseModel;
+use Webboy\Deepseek\Http\Contracts\HttpClient;
 
 class DeepseekChat extends BaseModel
 {
-    public function sendMessage(array $messages): array
+    public function __construct()
     {
-        return $this->httpClient->request('POST', 'chat/messages', [
-            'messages' => $messages,
-        ]);
+        parent::__construct('deepseek-chat');
     }
 }

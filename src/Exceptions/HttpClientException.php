@@ -3,7 +3,6 @@
 namespace Webboy\Deepseek\Exceptions;
 
 use Exception;
-use Webboy\Deepseek\Abstractions\DeepseekException;
 
 class HttpClientException extends DeepseekException
 {
