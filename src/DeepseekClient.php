@@ -2,62 +2,58 @@
 
 namespace Webboy\Deepseek;
 
-use Webboy\Deepseek\Dto\Responses\AiModel\AiModel;
-use Webboy\Deepseek\Dto\Responses\UserBalance\BalanceInfo;
-use Webboy\Deepseek\Dto\Responses\UserBalance\UserBalanceDto;
+use Illuminate\Support\Collection;
+use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\CreateChatCompletionRequestDto;
+use Webboy\Deepseek\Dto\Responses\AiModel\AiModelListResponseDto;
+use Webboy\Deepseek\Dto\Responses\AiModel\AiModelResponseDto;
+use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
+use Webboy\Deepseek\Dto\Responses\UserBalance\BalanceInfoResponseDto;
+use Webboy\Deepseek\Dto\Responses\UserBalance\UserBalanceResponseDto;
 use Webboy\Deepseek\Exceptions\HttpClientException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
 use Webboy\Deepseek\Http\GuzzleHttp;
-use Webboy\Deepseek\Models\DeepseekChat;
 
 class DeepseekClient
 {
-    private DeepseekChat $chatModel;
-
     protected HttpClient $httpClient;
 
     public function __construct(string $apiKey, HttpClient $httpClient = null)
     {
         $this->httpClient = $httpClient ?? new GuzzleHttp($apiKey);
-
-        $this->chatModel = new DeepseekChat();
     }
 
     /**
      * Get user balance
-     * @return UserBalanceDto
+     * @return UserBalanceResponseDto
      * @throws HttpClientException
      */
-    public function getBalance(): UserBalanceDto
+    public function getBalance(): UserBalanceResponseDto
     {
         $response = $this->httpClient->request('GET', 'user/balance');
 
-        return new UserBalanceDto(
-            is_available: $response['is_available'],
-            balance_infos: array_map(fn($balanceInfo) => new BalanceInfo(
-                currency: $balanceInfo['currency'],
-                total_balance: $balanceInfo['total_balance'],
-                granted_balance: $balanceInfo['granted_balance'],
-                topped_up_balance: $balanceInfo['topped_up_balance']
-            ), $response['balance_infos'])
-        );
+        return UserBalanceResponseDto::fromArray($response);
     }
 
     /**
      * Get available AI models
      *
-     * @return AiModel[]
+     * @return AiModelListResponseDto
      * @throws HttpClientException
      */
-    public function getModels(): array
+    public function listModels(): AiModelListResponseDto
     {
         $response = $this->httpClient->request('GET', 'models');
 
-        return array_map(fn($model) => new AiModel(
-            id: $model['id'],
-            object: $model['object'],
-            owned_by: $model['owned_by']
-        ),
-        $response['data']);
+        return AiModelListResponseDto::fromArray($response);
+    }
+
+    /**
+     * @throws HttpClientException
+     */
+    public function createChatCompletion(CreateChatCompletionRequestDto $request): ChatCompletionResponseDto
+    {
+        $response = $this->httpClient->request('POST', 'chat/completions', [], $request->toArray());
+
+        return ChatCompletionResponseDto::fromArray($response);
     }
 }
