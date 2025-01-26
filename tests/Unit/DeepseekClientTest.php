@@ -1,11 +1,15 @@
 <?php
-namespace Unit;
+
+namespace Tests\Unit;
 
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Webboy\Deepseek\DeepseekClient;
+use Webboy\Deepseek\Enums\DeepseekHttpClientEnum;
 use Webboy\Deepseek\Exceptions\DeepseekerExceptions\InvalidHttpClientIdDeepseekerException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
+use Webboy\Deepseek\Http\CurlHttp;
+use Webboy\Deepseek\Http\GuzzleHttp;
 
 class DeepseekClientTest extends TestCase
 {
@@ -46,6 +50,28 @@ class DeepseekClientTest extends TestCase
 
         $client = new DeepseekClient('fake-api-key');
         $client->useHttpClient('invalid-client-id');
+    }
+
+    /**
+     * @throws InvalidHttpClientIdDeepseekerException
+     */
+    public function testUseHttpClientWithGuzzle()
+    {
+        $client = new DeepseekClient('fake-api-key');
+        $client->useHttpClient(DeepseekHttpClientEnum::GUZZLE->value);
+
+        $this->assertInstanceOf(GuzzleHttp::class, $client->httpClient);
+    }
+
+    /**
+     * @throws InvalidHttpClientIdDeepseekerException
+     */
+    public function testUseHttpClientWithCurl()
+    {
+        $client = new DeepseekClient('fake-api-key');
+        $client->useHttpClient(DeepseekHttpClientEnum::CURL->value);
+
+        $this->assertInstanceOf(CurlHttp::class, $client->httpClient);
     }
 
 }

@@ -8,15 +8,15 @@ use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessag
 
 class MessageDto extends ResponseDto
 {
-    protected DeepseekMessageRoleEnum $role;
+    public DeepseekMessageRoleEnum $role;
 
     /**
      * @throws InvalidRoleMessageException
      */
     public function __construct(
         string $roleIdentifier,
-        protected string $content,
-    ){
+        public string $content,
+    ) {
         $this->role = DeepseekMessageRoleEnum::from($roleIdentifier) ?? throw new InvalidRoleMessageException($roleIdentifier);
     }
 

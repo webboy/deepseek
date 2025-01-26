@@ -10,9 +10,4 @@ abstract class ResponseDto extends BaseDto
     {
         return new static(...$data);
     }
-
-    public static function fromJson(string $json): static
-    {
-        return static::fromArray(json_decode($json, true));
-    }
 }

@@ -10,7 +10,8 @@ abstract class DeepseekEndpoint
 {
     public function __construct(
         protected DeepseekClient $deep_seek_client
-    ){}
+    ) {
+    }
 
     protected function getHttpClient(): HttpClient
     {

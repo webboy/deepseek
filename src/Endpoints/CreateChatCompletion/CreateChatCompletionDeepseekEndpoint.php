@@ -10,11 +10,13 @@ use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\ToolMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\MessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\ResponseFormat\ResponseFormatDto;
+use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\StreamOption\SteamOptionDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
 use Webboy\Deepseek\Endpoints\DeepseekEndpoint;
 use Webboy\Deepseek\Enums\DeepseekAiModelsEnum;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFrequencyPenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidModelChatCompletionException;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidPresencePenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ResponseFormatExceptions\InvalidResponseFormatType;
 
@@ -91,9 +93,9 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
     protected bool $logprobs;
 
     /**
-     * @var Collection|null Probabilities of top alternative tokens for each generated token.
+     * @var int|null Probabilities of top alternative tokens for each generated token.
      */
-    protected ?Collection $top_logprobs;
+    protected ?int $top_logprobs;
 
     /**
      * @throws InvalidModelChatCompletionException
@@ -119,8 +121,8 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
         ?array $tools = null,
         string $tool_choice = 'none',
         bool $logprobs = false,
-        ?array $top_logprobs = null
-    ){
+        ?int $top_logprobs = null
+    ) {
         parent::__construct($deep_seek_client);
 
         $this->messages = collect();
@@ -260,11 +262,17 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
         return $this;
     }
 
+    /**
+     * @throws InvalidPresencePenaltyChatCompletionException
+     */
     public function setPresencePenalty(int $presence_penalty): self
     {
-        $this->presence_penalty = $presence_penalty;
+        if ($presence_penalty >= -2 && $presence_penalty <= 2) {
+            $this->presence_penalty = $presence_penalty;
+            return $this;
+        }
 
-        return $this;
+        throw new InvalidPresencePenaltyChatCompletionException($presence_penalty);
     }
 
     /**
@@ -333,9 +341,9 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
         return $this;
     }
 
-    public function setTopLogprobs(?array $top_logprobs = []): self
+    public function setTopLogprobs(?int $top_logprobs = null): self
     {
-        $this->top_logprobs = collect($top_logprobs);
+        $this->top_logprobs = $top_logprobs;
 
         return $this;
     }
@@ -358,6 +366,9 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
         return $this->model;
     }
 
+    /**
+     * @return Collection<int|SteamOptionDto>|null
+     */
     public function getStreamOptions(): ?Collection
     {
         if ($this->stream_options->isEmpty()) {
@@ -374,15 +385,6 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
         }
 
         return $this->tools;
-    }
-
-    public function getTopLogprobs(): ?Collection
-    {
-        if ($this->top_logprobs->isEmpty()) {
-            return null;
-        }
-
-        return $this->top_logprobs;
     }
 
     // Methods
@@ -408,7 +410,7 @@ class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
             'tools' => $this->getTools(),
             'tool_choice' => $this->tool_choice,
             'logprobs' => $this->logprobs,
-            'top_logprobs' => $this->getTopLogprobs()
+            'top_logprobs' => $this->top_logprobs
         ];
     }
 

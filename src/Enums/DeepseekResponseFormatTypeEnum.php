@@ -10,12 +10,4 @@ enum DeepseekResponseFormatTypeEnum: string
 
     case JSON_OBJECT = 'json_object';
 
-    // To object
-    public function toObject(): ResponseFormatDto
-    {
-        return match ($this) {
-            self::TEXT => new ResponseFormatDto('text'),
-            self::JSON_OBJECT => new ResponseFormatDto('json_object'),
-        };
-    }
 }

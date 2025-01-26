@@ -9,18 +9,17 @@ use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessag
 
 class ChatChoiceDto extends ResponseDto
 {
-    protected DeepseekFinishReasonEnum $finish_reason;
+    public DeepseekFinishReasonEnum $finish_reason;
 
     /**
      * @throws InvalidFinishReasonException
      */
     public function __construct(
-        protected int $index,
-        protected MessageDto $message,
-        protected ?string $logprobs = null,
-        string $finish_reason_id
-    )
-    {
+        public int $index,
+        public MessageDto $message,
+        public ?string $logprobs = null,
+        string $finish_reason_id = 'stop'
+    ) {
         $this->finish_reason = DeepseekFinishReasonEnum::from($finish_reason_id)
             ?? throw new InvalidFinishReasonException($finish_reason_id);
     }

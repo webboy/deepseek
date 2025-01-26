@@ -1,19 +1,20 @@
 <?php
 
-namespace Endpoints;
+namespace Tests\Endpoints;
 
 use Illuminate\Support\Collection;
-use Tests\Endpoints\EndpointTestBase;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\SystemMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
-use Webboy\Deepseek\Dto\Responses\AiModel\AiModelListResponseDto;
+use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\StreamOption\SteamOptionDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
+use Webboy\Deepseek\Dto\Responses\ChatCompletion\MessageDto;
 use Webboy\Deepseek\Endpoints\CreateChatCompletion\CreateChatCompletionDeepseekEndpoint;
-use Webboy\Deepseek\Endpoints\ListModels\ListModelsDeepseekEndpoint;
 use Webboy\Deepseek\Enums\DeepseekMessageRoleEnum;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFrequencyPenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidModelChatCompletionException;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidPresencePenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ResponseFormatExceptions\InvalidResponseFormatType;
 
 class CreateChatCompletionEndpointTest extends EndpointTestBase
 {
@@ -52,7 +53,7 @@ class CreateChatCompletionEndpointTest extends EndpointTestBase
     /**
      * @throws InvalidFrequencyPenaltyChatCompletionException
      * @throws InvalidModelChatCompletionException
-     * @throws InvalidRoleMessageException
+     * @throws InvalidRoleMessageException|InvalidResponseFormatType
      */
     public function testEndpoint(): void
     {
@@ -65,12 +66,90 @@ class CreateChatCompletionEndpointTest extends EndpointTestBase
 
         // Assert endpoint
         $this->assertInstanceOf(CreateChatCompletionDeepseekEndpoint::class, $endpoint);
-        $this->assertInstanceOf(SystemMessageDto::class, $endpoint->getMessages()[DeepseekMessageRoleEnum::MESSAGE_ROLE_SYSTEM->value]);
-        $this->assertInstanceOf(UserMessageDto::class, $endpoint->getMessages()[DeepseekMessageRoleEnum::MESSAGE_ROLE_USER->value]);
+        $this->assertInstanceOf(
+            SystemMessageDto::class,
+            $endpoint->getMessages()[DeepseekMessageRoleEnum::MESSAGE_ROLE_SYSTEM->value]
+        );
+        $this->assertInstanceOf(
+            UserMessageDto::class,
+            $endpoint->getMessages()[DeepseekMessageRoleEnum::MESSAGE_ROLE_USER->value]
+        );
 
         $response = $endpoint->call();
 
         $this->assertNotNull($response);
         $this->assertInstanceOf(ChatCompletionResponseDto::class, $response);
+        $this->assertInstanceOf(Collection::class, $response->choices);
+        $this->assertInstanceOf(MessageDto::class, $response->choices->first()->message);
+        $this->assertEquals(
+            DeepseekMessageRoleEnum::MESSAGE_ROLE_ASSISTANT,
+            $response->choices->first()->message->role
+        );
+    }
+
+    /**
+     * @throws InvalidResponseFormatType
+     * @throws InvalidFrequencyPenaltyChatCompletionException
+     */
+    public function testSettingInvalidModel(): void
+    {
+        $this->expectException(InvalidModelChatCompletionException::class);
+
+        $endpoint = $this->client
+            ->createChatCompletion()
+            ->setModel('invalid-model');
+    }
+
+    /**
+     * @throws InvalidResponseFormatType
+     * @throws InvalidFrequencyPenaltyChatCompletionException
+     * @throws InvalidModelChatCompletionException
+     */
+    public function testSettingInvalidFrequencyPenalty(): void
+    {
+        $this->expectException(InvalidFrequencyPenaltyChatCompletionException::class);
+
+        $endpoint = $this->client
+            ->createChatCompletion()
+            ->setFrequencyPenalty(4);
+    }
+
+    /**
+     * @throws InvalidResponseFormatType
+     * @throws InvalidModelChatCompletionException
+     * @throws InvalidPresencePenaltyChatCompletionException
+     * @throws InvalidFrequencyPenaltyChatCompletionException
+     */
+    public function testSettingInvalidPresencePenalty(): void
+    {
+        $this->expectException(InvalidPresencePenaltyChatCompletionException::class);
+
+        $endpoint = $this->client
+            ->createChatCompletion()
+            ->setPresencePenalty(4);
+    }
+
+    /**
+     * @throws InvalidResponseFormatType
+     * @throws InvalidRoleMessageException
+     * @throws InvalidModelChatCompletionException
+     * @throws InvalidFrequencyPenaltyChatCompletionException
+     */
+    public function testToJson(): void
+    {
+        $endpoint = $this->client
+            ->createChatCompletion()
+            ->setModel('deepseek-chat')
+            ->setSystemMessage('You are my assistant')
+            ->setUserMessage('Hello')
+            ->setStreamOptions([
+                new SteamOptionDto(true)
+            ])
+            ->setTools([]);
+
+        $json = $endpoint->toJson();
+
+        $this->assertJson($json);
+
     }
 }

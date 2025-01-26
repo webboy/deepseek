@@ -1,6 +1,6 @@
 <?php
 
-namespace Endpoints;
+namespace Tests\Endpoints;
 
 use Illuminate\Support\Collection;
 use Tests\Endpoints\EndpointTestBase;
