@@ -12,6 +12,9 @@ composer require webboy/deepseek
 
 ## Requirements
 
+[![Latest Stable Version](https://img.shields.io/packagist/v/webboy/deepseek.svg)](https://packagist.org/packages/webboy/deepseek)
+[![Total Downloads](https://img.shields.io/packagist/dt/webboy/deepseek.svg)](https://packagist.org/packages/webboy/deepseek)
+
 PHP ^8.1
 
 ext-json extension
