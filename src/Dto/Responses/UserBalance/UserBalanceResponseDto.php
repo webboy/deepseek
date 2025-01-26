@@ -17,8 +17,8 @@ class UserBalanceResponseDto extends ResponseDto
      * @param Collection<int,BalanceInfoResponseDto> $balance_infos
      */
     public function __construct(
-        protected bool $is_available,
-        protected Collection $balance_infos
+        public bool $is_available,
+        public Collection $balance_infos
     ) {
     }
 

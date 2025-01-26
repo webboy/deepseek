@@ -35,7 +35,7 @@ class UserMessageDto extends MessageDto
     {
         $this->content = $content;
         $this->name = $name;
-        parent::__construct(DeepseekMessageRoleEnum::MESSAGE_ROLE_SYSTEM->value);
+        parent::__construct(DeepseekMessageRoleEnum::MESSAGE_ROLE_USER->value);
     }
 
     public function toArray(): array

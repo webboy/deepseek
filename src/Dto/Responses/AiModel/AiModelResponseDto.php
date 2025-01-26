@@ -7,9 +7,9 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
 class AiModelResponseDto extends ResponseDto
 {
     public function __construct(
-        protected string $id,
-        protected string $object,
-        protected string $owned_by
+        public string $id,
+        public string $object,
+        public string $owned_by
     ) {
     }
 

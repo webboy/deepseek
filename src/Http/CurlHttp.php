@@ -5,11 +5,32 @@ namespace Webboy\Deepseek\Http;
 use Webboy\Deepseek\Exceptions\HttpClientException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
 
+/**
+ * Class CurlHttp
+ *
+ * This class implements the `HttpClient` interface using the cURL library.
+ * It is responsible for making HTTP requests to the Deepseek API using cURL.
+ */
 class CurlHttp implements HttpClient
 {
+    /**
+     * @var string The API key for authenticating requests to the Deepseek API.
+     */
     private string $apiKey;
+
+    /**
+     * @var string The base URI for the Deepseek API.
+     */
     private string $baseUri;
 
+    /**
+     * CurlHttp constructor.
+     *
+     * Initializes the cURL HTTP client with the provided API key and base URI.
+     *
+     * @param string $apiKey The API key for authenticating requests to the Deepseek API.
+     * @param string|null $baseUri The base URI for the Deepseek API. Defaults to 'https://api.deepseek.com/' if not provided.
+     */
     public function __construct(string $apiKey, string $baseUri = null)
     {
         $this->apiKey = $apiKey;
@@ -17,14 +38,14 @@ class CurlHttp implements HttpClient
     }
 
     /**
-     * Make a request to the Deepseek API using cURL.
+     * Makes an HTTP request to the Deepseek API using cURL.
      *
-     * @param string $method
-     * @param string $endpoint
-     * @param array $headers
-     * @param array $data
-     * @return array
-     * @throws HttpClientException
+     * @param string $method The HTTP method (e.g., GET, POST).
+     * @param string $endpoint The API endpoint to request.
+     * @param array $headers Additional headers to include in the request.
+     * @param array $data The request payload data.
+     * @return array The response from the API as an associative array.
+     * @throws HttpClientException If the request fails or an error occurs during the request.
      */
     public function request(string $method, string $endpoint, array $headers = [], array $data = []): array
     {
@@ -71,10 +92,12 @@ class CurlHttp implements HttpClient
     }
 
     /**
-     * Prepare headers for the cURL request.
+     * Prepares headers for the cURL request.
      *
-     * @param array $headers
-     * @return array
+     * This method merges default headers (e.g., Authorization and Content-Type) with any additional headers provided.
+     *
+     * @param array $headers Additional headers to include in the request.
+     * @return array The final array of headers to be used in the cURL request.
      */
     private function prepareHeaders(array $headers): array
     {

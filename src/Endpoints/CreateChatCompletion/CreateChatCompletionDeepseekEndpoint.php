@@ -1,132 +1,122 @@
 <?php
 
-namespace Webboy\Deepseek\Dto\Requests\CreateChatCompletion;
+namespace Webboy\Deepseek\Endpoints\CreateChatCompletion;
 
+use Exception;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Collection;
+use Webboy\Deepseek\DeepseekClient;
+use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\CreateChatCompletionRequestDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\AssistantMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\SystemMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\ToolMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
+use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\MessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\ResponseFormat\ResponseFormatDto;
-use Webboy\Deepseek\Dto\Requests\RequestDto;
+use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
+use Webboy\Deepseek\Dto\Responses\ResponseDto;
+use Webboy\Deepseek\Endpoints\DeepseekEndpoint;
 use Webboy\Deepseek\Enums\DeepseekAiModelsEnum;
+use Webboy\Deepseek\Enums\DeepseekResponseFormatTypeEnum;
+use Webboy\Deepseek\Exceptions\DeepseekEndpointException;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFrequencyPenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidModelChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ResponseFormatExceptions\InvalidResponseFormatType;
 
-/**
- * Class CreateChatCompletionRequestDto
- */
-class CreateChatCompletionRequestDto extends RequestDto
+class CreateChatCompletionDeepseekEndpoint extends DeepseekEndpoint
 {
-    // Properties
-
     /**
-     * @var Collection<string|MessageDto> $messages
+     * @var Collection<string|MessageDto> Collection of messages in the conversation.
      */
     protected Collection $messages;
 
     /**
-     * @var DeepseekAiModelsEnum $model
+     * @var DeepseekAiModelsEnum The specific AI model to use for the chat completion.
      */
     protected DeepseekAiModelsEnum $model;
 
     /**
-     * @var int $frequency_penalty
+     * @var int Frequency penalty to discourage repetitive responses. Ranges from -2 to 2.
      */
     protected int $frequency_penalty;
 
     /**
-     * @var int $max_tokens
+     * @var int Maximum tokens allowed in the response. Default is 4096.
      */
     protected int $max_tokens;
 
     /**
-     * @var int $presence_penalty
+     * @var int Presence penalty to encourage exploring new topics. Ranges from -2 to 2.
      */
     protected int $presence_penalty;
 
     /**
-     * @var ResponseFormatDto $response_format
+     * @var ResponseFormatDto Output format of the model's response (e.g., JSON format).
      */
     protected ResponseFormatDto $response_format;
 
     /**
-     * @var string|null $stop
+     * @var string|null A specific "stop" string to end generation, or null for no stop condition.
      */
     protected ?string $stop;
 
     /**
-     * @var bool $stream
+     * @var bool Whether to stream the chat completion response in real-time.
      */
     protected bool $stream;
 
     /**
-     * @var Collection|null $stream_options
+     * @var Collection|null Additional options for streaming responses.
      */
     protected ?Collection $stream_options;
 
     /**
-     * @var int $temperature
+     * @var int Temperature setting for randomness in generated responses. Ranges from 0 to 2.
      */
     protected int $temperature;
 
     /**
-     * @var int $top_p
+     * @var int Top-p sampling value to control diversity in text generation. Default is 1.
      */
     protected int $top_p;
 
     /**
-     * @var Collection|null $tools
+     * @var Collection|null List of optional tools for the system to use during chat completion.
      */
     protected ?Collection $tools;
 
     /**
-     * @var string $tool_choice
+     * @var string Choice of a specific tool to use. Default is "none".
      */
     protected string $tool_choice;
 
     /**
-     * @var bool $logprobs
+     * @var bool Whether to log probabilities of tokens in the generated text.
      */
     protected bool $logprobs;
 
     /**
-     * @var Collection|null $top_logprobs
+     * @var Collection|null Probabilities of top alternative tokens for each generated token.
      */
     protected ?Collection $top_logprobs;
 
     /**
-     * CreateChatCompletionRequestDto constructor.
-     * @param SystemMessageDto|null $system_message
-     * @param UserMessageDto|null $user_message
-     * @param AssistantMessageDto|null $assistant_message
-     * @param ToolMessageDto|null $tool_message
-     * @param string|null $model
-     * @param int $frequency_penalty
-     * @param int $max_tokens
-     * @param int $presence_penalty
-     * @param ResponseFormatDto|null $response_format
-     * @param string|null $stop
-     * @param bool $stream
-     * @param array|null $stream_options
-     * @param int $temperature
-     * @param int $top_p
-     * @param array|null $tools
-     * @param string $tool_choice
-     * @param bool $logprobs
-     * @param array|null $top_logprobs
      * @throws InvalidModelChatCompletionException
+     * @throws InvalidFrequencyPenaltyChatCompletionException
+     * @throws InvalidResponseFormatType
      */
     public function __construct(
+        DeepseekClient $deep_seek_client,
         ?SystemMessageDto $system_message = null,
         ?UserMessageDto $user_message = null,
         ?AssistantMessageDto $assistant_message = null,
         ?ToolMessageDto $tool_message = null,
-        ?string $model = 'deepseek-chat',
+        ?string $modelId = 'deepseek-chat',
         int $frequency_penalty = 0,
-        int $max_tokens = 2048,
+        int $max_tokens = 4096,
         int $presence_penalty = 0,
-        ?ResponseFormatDto $response_format = null,
+        string $response_format_id = 'text',
         ?string $stop = null,
         bool $stream = false,
         ?array $stream_options = null,
@@ -136,7 +126,9 @@ class CreateChatCompletionRequestDto extends RequestDto
         string $tool_choice = 'none',
         bool $logprobs = false,
         ?array $top_logprobs = null
-    ) {
+    ){
+        parent::__construct($deep_seek_client);
+
         $this->messages = collect();
 
         // Set messages
@@ -146,7 +138,7 @@ class CreateChatCompletionRequestDto extends RequestDto
         $this->setMessage($tool_message);
 
         // Set model
-        $this->setModel($model);
+        $this->setModel($modelId);
 
         // Frequency penalty
         $this->setFrequencyPenalty($frequency_penalty);
@@ -158,7 +150,7 @@ class CreateChatCompletionRequestDto extends RequestDto
         $this->setPresencePenalty($presence_penalty);
 
         // Response format
-        $this->setResponseFormat($response_format);
+        $this->setResponseFormat($response_format_id);
 
         // Stop
         $this->setStop($stop);
@@ -193,7 +185,7 @@ class CreateChatCompletionRequestDto extends RequestDto
     /**
      * @param string $content
      * @param string|null $name
-     * @return CreateChatCompletionRequestDto
+     * @return CreateChatCompletionDeepseekEndpoint
      * @throws InvalidRoleMessageException
      */
     public function setSystemMessage(string $content, ?string $name = null): self
@@ -206,7 +198,7 @@ class CreateChatCompletionRequestDto extends RequestDto
     /**
      * @param string $content
      * @param string|null $name
-     * @return CreateChatCompletionRequestDto
+     * @return CreateChatCompletionDeepseekEndpoint
      * @throws InvalidRoleMessageException
      */
     public function setUserMessage(string $content, ?string $name = null): self
@@ -218,7 +210,7 @@ class CreateChatCompletionRequestDto extends RequestDto
 
     /**
      * @param MessageDto|null $message
-     * @return CreateChatCompletionRequestDto
+     * @return CreateChatCompletionDeepseekEndpoint
      */
     private function setMessage(?MessageDto $message): self
     {
@@ -255,12 +247,16 @@ class CreateChatCompletionRequestDto extends RequestDto
     /**
      * @param int $frequency_penalty
      * @return $this
+     * @throws InvalidFrequencyPenaltyChatCompletionException
      */
     public function setFrequencyPenalty(int $frequency_penalty): self
     {
-        $this->frequency_penalty = $frequency_penalty;
+        if ($frequency_penalty >= -2 && $frequency_penalty <= 2) {
+            $this->frequency_penalty = $frequency_penalty;
+            return $this;
+        }
 
-        return $this;
+        throw new InvalidFrequencyPenaltyChatCompletionException($frequency_penalty);
     }
 
     public function setMaxTokens(int $max_tokens): self
@@ -277,14 +273,17 @@ class CreateChatCompletionRequestDto extends RequestDto
         return $this;
     }
 
-    public function setResponseFormat(ResponseFormatDto $response_format): self
+    /**
+     * @throws InvalidResponseFormatType
+     */
+    public function setResponseFormat(string $response_format): self
     {
-        $this->response_format = $response_format;
+        $this->response_format = new ResponseFormatDto($response_format);
 
         return $this;
     }
 
-    public function setStop(string $stop): self
+    public function setStop(?string $stop = null): self
     {
         $this->stop = $stop;
 
@@ -298,14 +297,14 @@ class CreateChatCompletionRequestDto extends RequestDto
         return $this;
     }
 
-    public function setStreamOptions(array $stream_options): self
+    public function setStreamOptions(?array $stream_options = []): self
     {
         $this->stream_options = collect($stream_options);
 
         return $this;
     }
 
-    public function setTemperature(int $temperature): self
+    public function setTemperature(int $temperature = 1): self
     {
         $this->temperature = $temperature;
 
@@ -319,7 +318,7 @@ class CreateChatCompletionRequestDto extends RequestDto
         return $this;
     }
 
-    public function setTools(array $tools): self
+    public function setTools(?array $tools = []): self
     {
         $this->tools = collect($tools);
 
@@ -340,7 +339,7 @@ class CreateChatCompletionRequestDto extends RequestDto
         return $this;
     }
 
-    public function setTopLogprobs(array $top_logprobs): self
+    public function setTopLogprobs(?array $top_logprobs = []): self
     {
         $this->top_logprobs = collect($top_logprobs);
 
@@ -422,5 +421,18 @@ class CreateChatCompletionRequestDto extends RequestDto
     public function toJson(): string
     {
         return json_encode($this->toArray());
+    }
+
+    /**
+     * @return ChatCompletionResponseDto The response from the Deepseek API.
+     */
+    public function call(): ChatCompletionResponseDto
+    {
+        $response = $this
+            ->getHttpClient()
+            ->request('POST', 'chat/completions', [], $this->toArray());
+
+
+        return ChatCompletionResponseDto::fromArray($response);
     }
 }

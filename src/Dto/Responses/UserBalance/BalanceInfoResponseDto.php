@@ -7,10 +7,10 @@ use Webboy\Deepseek\Dto\BaseDto;
 class BalanceInfoResponseDto extends BaseDto
 {
     public function __construct(
-        protected string $currency,
-        protected float $total_balance,
-        protected float $granted_balance,
-        protected float $topped_up_balance
+        public string $currency,
+        public float $total_balance,
+        public float $granted_balance,
+        public float $topped_up_balance
     ) {
     }
 

@@ -5,7 +5,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Webboy\\Deepseek\\": "src/"
+            "Webboy\\Deepseek\\": "src/",
+            "Tests\\": "tests/"
         }
     },
     "authors": [
@@ -23,6 +24,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
-        "friendsofphp/php-cs-fixer": "^3.68"
+        "friendsofphp/php-cs-fixer": "^3.68",
+        "phpunit/phpunit": "^11.5"
     }
 }

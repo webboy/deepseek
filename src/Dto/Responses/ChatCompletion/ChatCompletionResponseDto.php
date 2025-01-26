@@ -8,13 +8,13 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
 class ChatCompletionResponseDto extends ResponseDto
 {
     public function __construct(
-        protected string $id,
-        protected string $object = 'chat.completion',
-        protected int $created = 0,
-        protected ?string $model = null,
-        protected ?string $system_fingerprint = null,
-        protected ?Collection $chat_choices,
-        protected ?UsageDto $usage = null,
+        public string $id,
+        public string $object = 'chat.completion',
+        public int $created = 0,
+        public ?string $model = null,
+        public ?string $system_fingerprint = null,
+        public ?Collection $choices = null,
+        public ?UsageDto $usage = null,
     ) {
     }
 
@@ -26,7 +26,7 @@ class ChatCompletionResponseDto extends ResponseDto
             created: $data['created'],
             model: $data['model'] ?? null,
             system_fingerprint: $data['system_fingerprint'] ?? null,
-            chat_choices: collect($data['choices'] ?? []),
+            choices: collect($data['choices'] ?? []),
             usage: UsageDto::fromArray($data['usage'] ?? []),
         );
     }

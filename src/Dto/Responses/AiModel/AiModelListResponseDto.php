@@ -2,20 +2,22 @@
 
 namespace Webboy\Deepseek\Dto\Responses\AiModel;
 
+use Illuminate\Support\Collection;
 use Webboy\Deepseek\Dto\Responses\ResponseDto;
 
 class AiModelListResponseDto extends ResponseDto
 {
     public function __construct(
-        protected string $object = 'list',
-        protected array $data = []
+        public string $object = 'list',
+        public ?Collection $data = null
     ) {
     }
 
     public static function fromArray(array $data): static
     {
         return new static(
-            data: array_map(fn ($item) => AiModelResponseDto::fromArray($item), $data['data'])
+            object: $data['object'],
+            data: collect(array_map(fn ($item) => AiModelResponseDto::fromArray($item), $data['data']))
         );
     }
 }
