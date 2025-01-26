@@ -13,8 +13,7 @@ class ResponseFormatDto extends RequestDto
      */
     public function __construct(
         protected string $type
-    )
-    {
+    ) {
         if (DeepseekResponseFormatTypeEnum::tryFrom($type) === null) {
             throw new InvalidResponseFormatType($type);
         }

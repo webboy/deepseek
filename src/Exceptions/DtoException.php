@@ -6,5 +6,4 @@ use Webboy\Deepseek\Exceptions\DeepseekException;
 
 abstract class DtoException extends DeepseekException
 {
-
 }

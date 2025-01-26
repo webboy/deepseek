@@ -19,14 +19,15 @@ class UserBalanceResponseDto extends ResponseDto
     public function __construct(
         protected bool $is_available,
         protected Collection $balance_infos
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): static
     {
         return new static(
             is_available: $data['is_available'],
             balance_infos: collect($data['balance_infos'])
-                ->map(fn($balanceInfo) => BalanceInfoResponseDto::fromArray($balanceInfo))
+                ->map(fn ($balanceInfo) => BalanceInfoResponseDto::fromArray($balanceInfo))
         );
     }
 }

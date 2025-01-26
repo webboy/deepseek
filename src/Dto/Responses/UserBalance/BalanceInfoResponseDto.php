@@ -11,7 +11,8 @@ class BalanceInfoResponseDto extends BaseDto
         protected float $total_balance,
         protected float $granted_balance,
         protected float $topped_up_balance
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): static
     {

@@ -10,7 +10,8 @@ class AiModelResponseDto extends ResponseDto
         protected string $id,
         protected string $object,
         protected string $owned_by
-    ){}
+    ) {
+    }
 
     public static function fromArray(array $data): static
     {

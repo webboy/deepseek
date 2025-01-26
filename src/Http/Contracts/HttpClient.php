@@ -7,7 +7,6 @@ namespace Webboy\Deepseek\Http\Contracts;
  */
 interface HttpClient
 {
-
     /**
      * @param string $apiKey
      * @param string $baseUrl

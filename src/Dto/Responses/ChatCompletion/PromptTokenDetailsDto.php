@@ -8,5 +8,6 @@ class PromptTokenDetailsDto extends ResponseDto
 {
     public function __construct(
         protected int $cached_tokens
-    ){}
+    ) {
+    }
 }

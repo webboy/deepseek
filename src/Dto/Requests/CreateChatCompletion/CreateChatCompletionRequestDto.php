@@ -118,24 +118,24 @@ class CreateChatCompletionRequestDto extends RequestDto
      * @throws InvalidModelChatCompletionException
      */
     public function __construct(
-         ?SystemMessageDto $system_message = null,
-         ?UserMessageDto $user_message = null,
-         ?AssistantMessageDto $assistant_message = null,
-         ?ToolMessageDto $tool_message = null,
-         ?string $model = 'deepseek-chat',
-         int $frequency_penalty = 0,
-         int $max_tokens = 2048,
-         int $presence_penalty = 0,
-         ?ResponseFormatDto $response_format = null,
-         ?string $stop = null,
-         bool $stream = false,
-         ?array $stream_options = null,
-         int $temperature =1,
-         int $top_p = 1,
-         ?array $tools = null,
-         string $tool_choice = 'none',
-         bool $logprobs = false,
-         ?array $top_logprobs = null
+        ?SystemMessageDto $system_message = null,
+        ?UserMessageDto $user_message = null,
+        ?AssistantMessageDto $assistant_message = null,
+        ?ToolMessageDto $tool_message = null,
+        ?string $model = 'deepseek-chat',
+        int $frequency_penalty = 0,
+        int $max_tokens = 2048,
+        int $presence_penalty = 0,
+        ?ResponseFormatDto $response_format = null,
+        ?string $stop = null,
+        bool $stream = false,
+        ?array $stream_options = null,
+        int $temperature = 1,
+        int $top_p = 1,
+        ?array $tools = null,
+        string $tool_choice = 'none',
+        bool $logprobs = false,
+        ?array $top_logprobs = null
     ) {
         $this->messages = collect();
 

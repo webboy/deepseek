@@ -6,5 +6,4 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
 
 class ChatChoiceDto extends ResponseDto
 {
-
 }

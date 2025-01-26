@@ -15,8 +15,8 @@ class ChatCompletionResponseDto extends ResponseDto
         protected ?string $system_fingerprint = null,
         protected ?Collection $chat_choices,
         protected ?UsageDto $usage = null,
-    )
-    {}
+    ) {
+    }
 
     public static function fromArray(array $data): static
     {

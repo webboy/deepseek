@@ -13,7 +13,8 @@ class UsageDto extends ResponseDto
         protected int $prompt_cache_miss_tokens,
         protected int $total_tokens,
         protected PromptTokenDetailsDto $prompt_tokens_details
-    ){}
+    ) {
+    }
 
     public static function fromArray(array $data): static
     {

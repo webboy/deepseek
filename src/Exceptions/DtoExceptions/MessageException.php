@@ -6,5 +6,4 @@ use Webboy\Deepseek\Exceptions\DtoException;
 
 abstract class MessageException extends DtoException
 {
-
 }

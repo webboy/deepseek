@@ -15,8 +15,7 @@ abstract class MessageDto extends RequestDto
      */
     public function __construct(
         string $role,
-    )
-    {
+    ) {
         if (DeepseekMessageRoleEnum::tryFrom($role) === null) {
             throw new InvalidRoleMessageException($role);
         }
