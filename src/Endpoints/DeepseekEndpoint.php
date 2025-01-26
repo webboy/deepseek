@@ -4,7 +4,6 @@ namespace Webboy\Deepseek\Endpoints;
 
 use Webboy\Deepseek\DeepseekClient;
 use Webboy\Deepseek\Dto\Responses\ResponseDto;
-use Webboy\Deepseek\Exceptions\DeepseekEndpointException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
 
 abstract class DeepseekEndpoint

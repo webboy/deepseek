@@ -2,11 +2,8 @@
 
 namespace Webboy\Deepseek\Endpoints\CreateChatCompletion;
 
-use Exception;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Collection;
 use Webboy\Deepseek\DeepseekClient;
-use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\CreateChatCompletionRequestDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\AssistantMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\SystemMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\ToolMessageDto;
@@ -14,11 +11,8 @@ use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\MessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\ResponseFormat\ResponseFormatDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
-use Webboy\Deepseek\Dto\Responses\ResponseDto;
 use Webboy\Deepseek\Endpoints\DeepseekEndpoint;
 use Webboy\Deepseek\Enums\DeepseekAiModelsEnum;
-use Webboy\Deepseek\Enums\DeepseekResponseFormatTypeEnum;
-use Webboy\Deepseek\Exceptions\DeepseekEndpointException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFrequencyPenaltyChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidModelChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
