@@ -8,7 +8,7 @@ abstract class ResponseDto extends BaseDto
 {
     public static function fromArray(array $data): static
     {
-        return new static(...array_values($data));
+        return new static(...$data);
     }
 
     public static function fromJson(string $json): static

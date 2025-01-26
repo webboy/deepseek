@@ -2,14 +2,12 @@
 
 namespace Webboy\Deepseek;
 
-use Illuminate\Support\Collection;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\CreateChatCompletionRequestDto;
 use Webboy\Deepseek\Dto\Responses\AiModel\AiModelListResponseDto;
-use Webboy\Deepseek\Dto\Responses\AiModel\AiModelResponseDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
-use Webboy\Deepseek\Dto\Responses\UserBalance\BalanceInfoResponseDto;
 use Webboy\Deepseek\Dto\Responses\UserBalance\UserBalanceResponseDto;
-use Webboy\Deepseek\Exceptions\HttpClientException;
+use Webboy\Deepseek\Enums\DeepseekHttpClientEnum;
+use Webboy\Deepseek\Exceptions\DeepseekerExceptions\InvalidHttpClientIdDeepseekerException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
 use Webboy\Deepseek\Http\GuzzleHttp;
 
@@ -17,15 +15,43 @@ class DeepseekClient
 {
     protected HttpClient $httpClient;
 
-    public function __construct(string $apiKey, HttpClient $httpClient = null)
+    public function __construct(protected string $apiKey, HttpClient $httpClient = null)
     {
-        $this->httpClient = $httpClient ?? new GuzzleHttp($apiKey);
+        $this->setCustomHttpClient($httpClient ?? new GuzzleHttp($this->apiKey));
+    }
+
+    /**
+     * @param HttpClient|null $httpClient
+     * @return $this
+     */
+    public function setCustomHttpClient(?HttpClient $httpClient): self
+    {
+        if ($httpClient) {
+            $this->httpClient = $httpClient;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws InvalidHttpClientIdDeepseekerException
+     */
+    public function useHttpClient(string $clientId): self
+    {
+        $httpClientEnum = DeepseekHttpClientEnum::tryFrom($clientId);
+
+        if ($httpClientEnum === null) {
+            throw new InvalidHttpClientIdDeepseekerException($clientId);
+        }
+
+        $this->setCustomHttpClient($httpClientEnum->getHttpClient($this->apiKey));
+
+        return $this;
     }
 
     /**
      * Get user balance
      * @return UserBalanceResponseDto
-     * @throws HttpClientException
      */
     public function getBalance(): UserBalanceResponseDto
     {
@@ -38,7 +64,6 @@ class DeepseekClient
      * Get available AI models
      *
      * @return AiModelListResponseDto
-     * @throws HttpClientException
      */
     public function listModels(): AiModelListResponseDto
     {
@@ -47,9 +72,6 @@ class DeepseekClient
         return AiModelListResponseDto::fromArray($response);
     }
 
-    /**
-     * @throws HttpClientException
-     */
     public function createChatCompletion(CreateChatCompletionRequestDto $request): ChatCompletionResponseDto
     {
         $response = $this->httpClient->request('POST', 'chat/completions', [], $request->toArray());

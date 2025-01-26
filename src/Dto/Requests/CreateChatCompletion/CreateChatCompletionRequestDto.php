@@ -10,9 +10,12 @@ use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\ResponseFormat\ResponseFormatDto;
 use Webboy\Deepseek\Dto\Requests\RequestDto;
 use Webboy\Deepseek\Enums\DeepseekAiModelsEnum;
+use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidModelChatCompletionException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
-use Webboy\Deepseek\Exceptions\DtoExceptions\ResponseFormatExceptions\InvalidResponseFormatType;
 
+/**
+ * Class CreateChatCompletionRequestDto
+ */
 class CreateChatCompletionRequestDto extends RequestDto
 {
     // Properties
@@ -21,27 +24,105 @@ class CreateChatCompletionRequestDto extends RequestDto
      * @var Collection<string|MessageDto> $messages
      */
     protected Collection $messages;
+
+    /**
+     * @var DeepseekAiModelsEnum $model
+     */
     protected DeepseekAiModelsEnum $model;
+
+    /**
+     * @var int $frequency_penalty
+     */
     protected int $frequency_penalty;
+
+    /**
+     * @var int $max_tokens
+     */
     protected int $max_tokens;
+
+    /**
+     * @var int $presence_penalty
+     */
     protected int $presence_penalty;
+
+    /**
+     * @var ResponseFormatDto $response_format
+     */
     protected ResponseFormatDto $response_format;
+
+    /**
+     * @var string|null $stop
+     */
     protected ?string $stop;
+
+    /**
+     * @var bool $stream
+     */
     protected bool $stream;
+
+    /**
+     * @var Collection|null $stream_options
+     */
     protected ?Collection $stream_options;
+
+    /**
+     * @var int $temperature
+     */
     protected int $temperature;
+
+    /**
+     * @var int $top_p
+     */
     protected int $top_p;
+
+    /**
+     * @var Collection|null $tools
+     */
     protected ?Collection $tools;
+
+    /**
+     * @var string $tool_choice
+     */
     protected string $tool_choice;
+
+    /**
+     * @var bool $logprobs
+     */
     protected bool $logprobs;
+
+    /**
+     * @var Collection|null $top_logprobs
+     */
     protected ?Collection $top_logprobs;
 
+    /**
+     * CreateChatCompletionRequestDto constructor.
+     * @param SystemMessageDto|null $system_message
+     * @param UserMessageDto|null $user_message
+     * @param AssistantMessageDto|null $assistant_message
+     * @param ToolMessageDto|null $tool_message
+     * @param string|null $model
+     * @param int $frequency_penalty
+     * @param int $max_tokens
+     * @param int $presence_penalty
+     * @param ResponseFormatDto|null $response_format
+     * @param string|null $stop
+     * @param bool $stream
+     * @param array|null $stream_options
+     * @param int $temperature
+     * @param int $top_p
+     * @param array|null $tools
+     * @param string $tool_choice
+     * @param bool $logprobs
+     * @param array|null $top_logprobs
+     * @throws InvalidModelChatCompletionException
+     */
     public function __construct(
          ?SystemMessageDto $system_message = null,
          ?UserMessageDto $user_message = null,
          ?AssistantMessageDto $assistant_message = null,
          ?ToolMessageDto $tool_message = null,
-         ?string $model = null,
+         ?string $model = 'deepseek-chat',
          int $frequency_penalty = 0,
          int $max_tokens = 2048,
          int $presence_penalty = 0,
@@ -64,28 +145,58 @@ class CreateChatCompletionRequestDto extends RequestDto
         $this->setMessage($assistant_message);
         $this->setMessage($tool_message);
 
-        $this->model = DeepseekAiModelsEnum::tryFrom($model);
-        $this->frequency_penalty = $frequency_penalty;
-        $this->max_tokens = $max_tokens;
-        $this->presence_penalty = $presence_penalty;
-        $this->response_format = $response_format;
-        $this->stop = $stop;
-        $this->stream = $stream;
-        $this->stream_options = collect($stream_options);
-        $this->temperature = $temperature;
-        $this->top_p = $top_p;
-        $this->tools = collect($tools);
-        $this->tool_choice = $tool_choice;
-        $this->logprobs = $logprobs;
-        $this->top_logprobs = collect($top_logprobs);
+        // Set model
+        $this->setModel($model);
+
+        // Frequency penalty
+        $this->setFrequencyPenalty($frequency_penalty);
+
+        // Max tokens
+        $this->setMaxTokens($max_tokens);
+
+        // Presence penalty
+        $this->setPresencePenalty($presence_penalty);
+
+        // Response format
+        $this->setResponseFormat($response_format);
+
+        // Stop
+        $this->setStop($stop);
+
+        // Stream
+        $this->setStream($stream);
+
+        // Stream options
+        $this->setStreamOptions($stream_options);
+
+        // Temperature
+        $this->setTemperature($temperature);
+
+        // Top P
+        $this->setTopP($top_p);
+
+        // Tools
+        $this->setTools($tools);
+
+        // Tool choice
+        $this->setToolChoice($tool_choice);
+
+        // Logprobs
+        $this->setLogprobs($logprobs);
+
+        // Top logprobs
+        $this->setTopLogprobs($top_logprobs);
     }
 
     // Setters
 
     /**
+     * @param string $content
+     * @param string|null $name
+     * @return CreateChatCompletionRequestDto
      * @throws InvalidRoleMessageException
      */
-    public function setSystemMessage(string $content, ?string $name = null): CreateChatCompletionRequestDto
+    public function setSystemMessage(string $content, ?string $name = null): self
     {
         $message = new SystemMessageDto($content, $name);
 
@@ -93,16 +204,23 @@ class CreateChatCompletionRequestDto extends RequestDto
     }
 
     /**
+     * @param string $content
+     * @param string|null $name
+     * @return CreateChatCompletionRequestDto
      * @throws InvalidRoleMessageException
      */
-    public function setUserMessage(string $content, ?string $name = null): CreateChatCompletionRequestDto
+    public function setUserMessage(string $content, ?string $name = null): self
     {
         $message = new UserMessageDto($content, $name);
 
         return $this->setMessage($message);
     }
 
-    private function setMessage(?MessageDto $message): CreateChatCompletionRequestDto
+    /**
+     * @param MessageDto|null $message
+     * @return CreateChatCompletionRequestDto
+     */
+    private function setMessage(?MessageDto $message): self
     {
         if ($message) {
             $this->messages->put(
@@ -114,46 +232,139 @@ class CreateChatCompletionRequestDto extends RequestDto
         return $this;
     }
 
-    public function setModel(string $model): CreateChatCompletionRequestDto
+    /**
+     * @param string|null $model
+     * @return $this
+     * @throws InvalidModelChatCompletionException
+     */
+    public function setModel(?string $model = null): self
     {
-        $this->model = DeepseekAiModelsEnum::tryFrom($model);
+        if ($model) {
+            $model = DeepseekAiModelsEnum::tryFrom($model);
+
+            if ($model) {
+                $this->model = $model;
+            } else {
+                throw new InvalidModelChatCompletionException($model);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param int $frequency_penalty
+     * @return $this
+     */
+    public function setFrequencyPenalty(int $frequency_penalty): self
+    {
+        $this->frequency_penalty = $frequency_penalty;
+
+        return $this;
+    }
+
+    public function setMaxTokens(int $max_tokens): self
+    {
+        $this->max_tokens = $max_tokens;
+
+        return $this;
+    }
+
+    public function setPresencePenalty(int $presence_penalty): self
+    {
+        $this->presence_penalty = $presence_penalty;
+
+        return $this;
+    }
+
+    public function setResponseFormat(ResponseFormatDto $response_format): self
+    {
+        $this->response_format = $response_format;
+
+        return $this;
+    }
+
+    public function setStop(string $stop): self
+    {
+        $this->stop = $stop;
+
+        return $this;
+    }
+
+    public function setStream(bool $stream): self
+    {
+        $this->stream = $stream;
+
+        return $this;
+    }
+
+    public function setStreamOptions(array $stream_options): self
+    {
+        $this->stream_options = collect($stream_options);
+
+        return $this;
+    }
+
+    public function setTemperature(int $temperature): self
+    {
+        $this->temperature = $temperature;
+
+        return $this;
+    }
+
+    public function setTopP(int $top_p): self
+    {
+        $this->top_p = $top_p;
+
+        return $this;
+    }
+
+    public function setTools(array $tools): self
+    {
+        $this->tools = collect($tools);
+
+        return $this;
+    }
+
+    public function setToolChoice(string $tool_choice): self
+    {
+        $this->tool_choice = $tool_choice;
+
+        return $this;
+    }
+
+    public function setLogprobs(bool $logprobs): self
+    {
+        $this->logprobs = $logprobs;
+
+        return $this;
+    }
+
+    public function setTopLogprobs(array $top_logprobs): self
+    {
+        $this->top_logprobs = collect($top_logprobs);
 
         return $this;
     }
 
     // Getters
+
+    /**
+     * @return Collection
+     */
     public function getMessages(): Collection
     {
         return $this->messages;
     }
+
+    /**
+     * @return DeepseekAiModelsEnum
+     */
     public function getModel(): DeepseekAiModelsEnum
     {
         return $this->model;
     }
-    public function getFrequencyPenalty(): int
-    {
-        return $this->frequency_penalty;
-    }
-    public function getMaxTokens(): int
-    {
-        return $this->max_tokens;
-    }
-    public function getPresencePenalty(): int
-    {
-        return $this->presence_penalty;
-    }
-    public function getResponseFormat(): ResponseFormatDto
-    {
-        return $this->response_format;
-    }
-    public function getStop(): ?string
-    {
-        return $this->stop;
-    }
-    public function getStream(): bool
-    {
-        return $this->stream;
-    }
+
     public function getStreamOptions(): ?Collection
     {
         if ($this->stream_options->isEmpty()) {
@@ -162,14 +373,7 @@ class CreateChatCompletionRequestDto extends RequestDto
 
         return $this->stream_options;
     }
-    public function getTemperature(): int
-    {
-        return $this->temperature;
-    }
-    public function getTopP(): int
-    {
-        return $this->top_p;
-    }
+
     public function getTools(): ?Collection
     {
         if ($this->tools->isEmpty()) {
@@ -178,14 +382,7 @@ class CreateChatCompletionRequestDto extends RequestDto
 
         return $this->tools;
     }
-    public function getToolChoice(): string
-    {
-        return $this->tool_choice;
-    }
-    public function getLogprobs(): bool
-    {
-        return $this->logprobs;
-    }
+
     public function getTopLogprobs(): ?Collection
     {
         if ($this->top_logprobs->isEmpty()) {
@@ -205,7 +402,7 @@ class CreateChatCompletionRequestDto extends RequestDto
 
         return [
             'messages' => $messages,
-            'model' => $this->model->value,
+            'model' => $this->getModel()->value,
             'frequency_penalty' => $this->frequency_penalty,
             'max_tokens' => $this->max_tokens,
             'presence_penalty' => $this->presence_penalty,
@@ -227,33 +424,3 @@ class CreateChatCompletionRequestDto extends RequestDto
         return json_encode($this->toArray());
     }
 }
-/**
- * {
- * "messages": [
- * {
- * "content": "You are a helpful assistant",
- * "role": "system"
- * },
- * {
- * "content": "Hi",
- * "role": "user"
- * }
- * ],
- * "model": "deepseek-chat",
- * "frequency_penalty": 0,
- * "max_tokens": 2048,
- * "presence_penalty": 0,
- * "response_format": {
- * "type": "text"
- * },
- * "stop": null,
- * "stream": false,
- * "stream_options": null,
- * "temperature": 1,
- * "top_p": 1,
- * "tools": null,
- * "tool_choice": "none",
- * "logprobs": false,
- * "top_logprobs": null
- * }
- */

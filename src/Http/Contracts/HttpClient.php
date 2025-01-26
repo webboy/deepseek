@@ -7,6 +7,13 @@ namespace Webboy\Deepseek\Http\Contracts;
  */
 interface HttpClient
 {
+
+    /**
+     * @param string $apiKey
+     * @param string $baseUrl
+     */
+    public function __construct(string $apiKey, string $baseUrl);
+
     /**
      * Make a request to the Deepseek API.
      * @param string $method
