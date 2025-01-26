@@ -42,7 +42,9 @@ class ChatCompletionResponseDto extends ResponseDto
                  * @throws InvalidRoleMessageException
                  * @throws InvalidFinishReasonException
                 */
-                fn($choice) => ChatChoiceDto::fromArray($choice), $data['choices'] ?? [])),
+                fn ($choice) => ChatChoiceDto::fromArray($choice),
+                $data['choices'] ?? []
+            )),
             usage: UsageDto::fromArray($data['usage'] ?? []),
         );
     }

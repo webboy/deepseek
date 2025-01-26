@@ -8,5 +8,6 @@ class SteamOptionDto extends RequestDto
 {
     public function __construct(
         public ?bool $include_usage = null,
-    ){}
+    ) {
+    }
 }
