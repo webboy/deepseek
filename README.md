@@ -2,6 +2,8 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/webboy/deepseek.svg)](https://packagist.org/packages/webboy/deepseek)
 [![Total Downloads](https://img.shields.io/packagist/dt/webboy/deepseek.svg)](https://packagist.org/packages/webboy/deepseek)
+[![PHP Version](https://img.shields.io/packagist/php-v/webboy/deepseek.svg)](https://packagist.org/packages/webboy/deepseek)
+[![License](https://img.shields.io/packagist/l/webboy/deepseek.svg)](https://packagist.org/packages/webboy/measurement-units)
 
 A PHP client for interacting with the Deepseek AI API, providing easy-to-use methods to communicate with Deepseek's services.
 
