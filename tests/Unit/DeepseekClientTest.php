@@ -17,7 +17,7 @@ class DeepseekClientTest extends TestCase
      * Test constructing the client with a mocked HTTP client.
      * @throws Exception
      */
-    public function testConstructorWithMockedHttpClient()
+    public function testConstructorWithMockedHttpClient(): void
     {
         $httpClientMock = $this->createMock(HttpClient::class);
         $client = new DeepseekClient('fake-api-key', $httpClientMock);
@@ -30,7 +30,7 @@ class DeepseekClientTest extends TestCase
      * Test using a custom HTTP client.
      * @throws Exception
      */
-    public function testSetCustomHttpClient()
+    public function testSetCustomHttpClient(): void
     {
         $httpClientMock = $this->createMock(HttpClient::class);
 
@@ -44,7 +44,7 @@ class DeepseekClientTest extends TestCase
     /**
      * Test using an invalid HTTP client with exception.
      */
-    public function testUseHttpClientWithInvalidId()
+    public function testUseHttpClientWithInvalidId(): void
     {
         $this->expectException(InvalidHttpClientIdDeepseekerException::class);
 
@@ -55,7 +55,7 @@ class DeepseekClientTest extends TestCase
     /**
      * @throws InvalidHttpClientIdDeepseekerException
      */
-    public function testUseHttpClientWithGuzzle()
+    public function testUseHttpClientWithGuzzle(): void
     {
         $client = new DeepseekClient('fake-api-key');
         $client->useHttpClient(DeepseekHttpClientEnum::GUZZLE->value);
@@ -66,7 +66,7 @@ class DeepseekClientTest extends TestCase
     /**
      * @throws InvalidHttpClientIdDeepseekerException
      */
-    public function testUseHttpClientWithCurl()
+    public function testUseHttpClientWithCurl(): void
     {
         $client = new DeepseekClient('fake-api-key');
         $client->useHttpClient(DeepseekHttpClientEnum::CURL->value);

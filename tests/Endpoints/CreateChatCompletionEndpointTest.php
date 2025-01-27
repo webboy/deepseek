@@ -3,9 +3,11 @@
 namespace Tests\Endpoints;
 
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\SystemMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\Message\UserMessageDto;
 use Webboy\Deepseek\Dto\Requests\CreateChatCompletion\StreamOption\SteamOptionDto;
+use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatChoiceDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\ChatCompletionResponseDto;
 use Webboy\Deepseek\Dto\Responses\ChatCompletion\MessageDto;
 use Webboy\Deepseek\Endpoints\CreateChatCompletion\CreateChatCompletionDeepseekEndpoint;
@@ -77,13 +79,15 @@ class CreateChatCompletionEndpointTest extends EndpointTestBase
 
         $response = $endpoint->call();
 
-        $this->assertNotNull($response);
         $this->assertInstanceOf(ChatCompletionResponseDto::class, $response);
         $this->assertInstanceOf(Collection::class, $response->choices);
-        $this->assertInstanceOf(MessageDto::class, $response->choices->first()->message);
+
+        $firstChoice = $response->choices->first();
+        $this->assertInstanceOf(ChatChoiceDto::class, $firstChoice);
+        $this->assertInstanceOf(MessageDto::class, $firstChoice->message);
         $this->assertEquals(
             DeepseekMessageRoleEnum::MESSAGE_ROLE_ASSISTANT,
-            $response->choices->first()->message->role
+            $firstChoice->message->role
         );
     }
 

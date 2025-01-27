@@ -9,7 +9,7 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
  * Class UserBalanceResponseDto
  * @package Webboy\Deepseek\Dto\Responses\UserBalance
  */
-class UserBalanceResponseDto extends ResponseDto
+final class UserBalanceResponseDto extends ResponseDto
 {
     /**
      * UserBalanceResponseDto constructor.

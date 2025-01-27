@@ -2,9 +2,11 @@
 
 namespace Webboy\Deepseek\Http;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\ResponseInterface;
 use Webboy\Deepseek\Exceptions\HttpClientException;
 use Webboy\Deepseek\Http\Contracts\HttpClient;
 
@@ -48,18 +50,33 @@ class GuzzleHttp implements HttpClient
      * @param string $endpoint The API endpoint to request.
      * @param array<string, string> $headers Additional headers to include in the request.
      * @param array<string, mixed> $data The request payload data.
-     * @return array<string, mixed> The response from the API as an associative array.
+     * @return array<mixed> The response from the API as an associative array.
      * @throws HttpClientException If the request fails or an error occurs during the request.
      */
     public function request(string $method, string $endpoint, array $headers = [], array $data = []): array
     {
         try {
-            $request = new Request($method, $endpoint, $headers, json_encode($data));
+            $requestBody = json_encode($data);
+            if ($requestBody === false) {
+                throw new HttpClientException('Failed to encode data to JSON: ' . json_last_error_msg());
+            }
 
+            $request = new Request($method, $endpoint, $headers, $requestBody);
+
+            /** @var ResponseInterface $response */
             $response = $this->client->sendAsync($request)->wait();
 
-            return json_decode($response->getBody(), true);
-        } catch (GuzzleException $e) {
+            $responseBody = (string) $response->getBody();
+
+            $decodedResponse = json_decode($responseBody, true);
+
+            if (!is_array($decodedResponse)) {
+                throw new HttpClientException('Invalid response format: Expected JSON object.');
+            }
+
+            return $decodedResponse;
+
+        } catch (Exception $e) {
             // Handle specific Guzzle exceptions here
             throw new HttpClientException($e->getMessage(), $e->getCode(), $e);
         }

@@ -6,7 +6,7 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
 use Webboy\Deepseek\Enums\DeepseekMessageRoleEnum;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
 
-class MessageDto extends ResponseDto
+final class MessageDto extends ResponseDto
 {
     public DeepseekMessageRoleEnum $role;
 

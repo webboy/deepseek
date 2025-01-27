@@ -42,9 +42,9 @@ class CurlHttp implements HttpClient
      *
      * @param string $method The HTTP method (e.g., GET, POST).
      * @param string $endpoint The API endpoint to request.
-     * @param array $headers Additional headers to include in the request.
-     * @param array $data The request payload data.
-     * @return array The response from the API as an associative array.
+     * @param array<string, string> $headers Additional headers to include in the request.
+     * @param array<string, mixed> $data The request payload data.
+     * @return array<mixed> The response from the API as an associative array.
      * @throws HttpClientException If the request fails or an error occurs during the request.
      */
     public function request(string $method, string $endpoint, array $headers = [], array $data = []): array
@@ -66,7 +66,11 @@ class CurlHttp implements HttpClient
 
         // Add POST/PUT payload, if applicable
         if (in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'], true) && !empty($data)) {
-            $options[CURLOPT_POSTFIELDS] = json_encode($data);
+            $jsonPayload = json_encode($data);
+            if ($jsonPayload === false) {
+                throw new HttpClientException('Failed to encode data to JSON: ' . json_last_error_msg());
+            }
+            $options[CURLOPT_POSTFIELDS] = $jsonPayload;
         }
 
         curl_setopt_array($curl, $options);
@@ -77,18 +81,26 @@ class CurlHttp implements HttpClient
 
         // Handle cURL errors
         if (curl_errno($curl)) {
-            throw new HttpClientException('CURL Error: ' . curl_error($curl));
+            $error = curl_error($curl);
+            curl_close($curl);
+            throw new HttpClientException('CURL Error: ' . $error);
         }
 
         curl_close($curl);
 
         // Handle HTTP errors
         if ($httpCode < 200 || $httpCode >= 300) {
-            throw new HttpClientException("HTTP Error: Received response code $httpCode with body: $response");
+            throw new HttpClientException("HTTP Error: Received response code $httpCode with body: " . (string)$response);
         }
 
-        // Return decoded response
-        return json_decode($response, true);
+        // Decode response
+        $decodedResponse = json_decode((string)$response, true);
+
+        if (!is_array($decodedResponse)) {
+            throw new HttpClientException('Invalid response format: Expected JSON object.');
+        }
+
+        return $decodedResponse;
     }
 
     /**
@@ -96,8 +108,8 @@ class CurlHttp implements HttpClient
      *
      * This method merges default headers (e.g., Authorization and Content-Type) with any additional headers provided.
      *
-     * @param array $headers Additional headers to include in the request.
-     * @return array The final array of headers to be used in the cURL request.
+     * @param array<string, string> $headers Additional headers to include in the request.
+     * @return array<string> The final array of headers to be used in the cURL request.
      */
     private function prepareHeaders(array $headers): array
     {
@@ -107,7 +119,7 @@ class CurlHttp implements HttpClient
         ];
 
         foreach ($headers as $key => $value) {
-            $defaultHeaders[] = "$key: $value";
+            $defaultHeaders[] = "$key: " . (string)$value;
         }
 
         return $defaultHeaders;

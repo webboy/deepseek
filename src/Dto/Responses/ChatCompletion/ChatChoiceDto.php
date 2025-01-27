@@ -7,7 +7,7 @@ use Webboy\Deepseek\Enums\DeepseekFinishReasonEnum;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFinishReasonException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
 
-class ChatChoiceDto extends ResponseDto
+final class ChatChoiceDto extends ResponseDto
 {
     public DeepseekFinishReasonEnum $finish_reason;
 

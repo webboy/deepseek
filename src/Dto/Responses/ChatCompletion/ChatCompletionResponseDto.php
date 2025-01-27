@@ -7,7 +7,7 @@ use Webboy\Deepseek\Dto\Responses\ResponseDto;
 use Webboy\Deepseek\Exceptions\DtoExceptions\ChatCompletionExceptions\InvalidFinishReasonException;
 use Webboy\Deepseek\Exceptions\DtoExceptions\MessageExceptions\InvalidRoleMessageException;
 
-class ChatCompletionResponseDto extends ResponseDto
+final class ChatCompletionResponseDto extends ResponseDto
 {
     /**
      * @param string $id

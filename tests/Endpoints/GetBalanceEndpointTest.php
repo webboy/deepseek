@@ -34,13 +34,12 @@ class GetBalanceEndpointTest extends EndpointTestBase
 
         $response = $endpoint->call();
 
-        $this->assertNotNull($response);
         $this->assertInstanceOf(UserBalanceResponseDto::class, $response);
         $this->assertInstanceOf(Collection::class, $response->balance_infos);
         $this->assertInstanceOf(BalanceInfoResponseDto::class, $response->balance_infos->first());
-        $this->assertNotNull($response->balance_infos->first()->currency);
-        $this->assertNotNull($response->balance_infos->first()->total_balance);
-        $this->assertNotNull($response->balance_infos->first()->granted_balance);
-        $this->assertNotNull($response->balance_infos->first()->topped_up_balance);
+        $this->assertEquals('USD', $response->balance_infos->first()->currency);
+        $this->assertEquals(4.99, $response->balance_infos->first()->total_balance);
+        $this->assertEquals(0, $response->balance_infos->first()->granted_balance);
+        $this->assertEquals(4.99, $response->balance_infos->first()->topped_up_balance);
     }
 }

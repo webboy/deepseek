@@ -4,7 +4,7 @@ namespace Webboy\Deepseek\Dto\Responses\AiModel;
 
 use Webboy\Deepseek\Dto\Responses\ResponseDto;
 
-class AiModelResponseDto extends ResponseDto
+final class AiModelResponseDto extends ResponseDto
 {
     public function __construct(
         public string $id,

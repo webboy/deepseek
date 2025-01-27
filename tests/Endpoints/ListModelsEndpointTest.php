@@ -41,7 +41,6 @@ class ListModelsEndpointTest extends EndpointTestBase
 
         $response = $endpoint->call();
 
-        $this->assertNotNull($response);
         $this->assertInstanceOf(AiModelListResponseDto::class, $response);
         $this->assertInstanceOf(Collection::class, $response->data);
     }

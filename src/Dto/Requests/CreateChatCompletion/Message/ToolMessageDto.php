@@ -32,9 +32,10 @@ class ToolMessageDto extends MessageDto
      */
     public function __construct(string $content, string $tool_call_id)
     {
-        $this->content = $content;
-
         parent::__construct(DeepseekMessageRoleEnum::MESSAGE_ROLE_TOOL->value);
+
+        $this->content = $content;
+        $this->tool_call_id = $tool_call_id;
     }
 
     public function toArray(): array

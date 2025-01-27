@@ -4,7 +4,7 @@ namespace Webboy\Deepseek\Dto\Responses\UserBalance;
 
 use Webboy\Deepseek\Dto\BaseDto;
 
-class BalanceInfoResponseDto extends BaseDto
+final class BalanceInfoResponseDto extends BaseDto
 {
     public function __construct(
         public string $currency,

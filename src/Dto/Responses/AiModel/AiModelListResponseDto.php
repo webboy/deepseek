@@ -5,7 +5,7 @@ namespace Webboy\Deepseek\Dto\Responses\AiModel;
 use Illuminate\Support\Collection;
 use Webboy\Deepseek\Dto\Responses\ResponseDto;
 
-class AiModelListResponseDto extends ResponseDto
+final class AiModelListResponseDto extends ResponseDto
 {
     public function __construct(
         public string $object = 'list',

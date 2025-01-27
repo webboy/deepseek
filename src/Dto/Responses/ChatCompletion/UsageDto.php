@@ -4,7 +4,7 @@ namespace Webboy\Deepseek\Dto\Responses\ChatCompletion;
 
 use Webboy\Deepseek\Dto\Responses\ResponseDto;
 
-class UsageDto extends ResponseDto
+final class UsageDto extends ResponseDto
 {
     public function __construct(
         protected int $completion_tokens,
